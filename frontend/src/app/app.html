@@ -1,0 +1,463 @@
+@if (isAdminRoute) {
+  @if (!isAdminAuthenticated()) {
+    <main class="admin-login-page">
+      <a class="brand admin-login-brand" href="/"><span class="brand-mark" aria-hidden="true">j</span><span>jaldi<span class="brand-period">.</span></span></a>
+      <section class="admin-login-card">
+        <span class="eyebrow muted-eyebrow">STORE MANAGEMENT</span>
+        <h1>Welcome back.</h1>
+        <p>Sign in to manage your neighbourhood store.</p>
+        <form class="admin-login-form" (ngSubmit)="adminLogin()">
+          <label>
+            <span>Username</span>
+            <input name="username" [(ngModel)]="loginUsername" autocomplete="username" required />
+          </label>
+          <label>
+            <span>Password</span>
+            <input name="password" [(ngModel)]="loginPassword" type="password" autocomplete="current-password" placeholder="Enter admin password" required />
+          </label>
+          @if (loginError) {
+            <p class="admin-form-error" role="alert">{{ loginError }}</p>
+          }
+          <button type="submit" class="admin-primary-button">Sign in to dashboard <span aria-hidden="true">→</span></button>
+        </form>
+        <p class="demo-credential-note"><strong>Local demo:</strong> admin / jaldi123</p>
+        <a class="back-to-shop" href="/">← Back to shop</a>
+      </section>
+      <p class="admin-login-footnote">Demo credentials only. Replace before deploying publicly.</p>
+    </main>
+  } @else {
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <a class="brand admin-brand" href="/"><span class="brand-mark" aria-hidden="true">j</span><span>jaldi<span class="brand-period">.</span></span></a>
+        <span class="admin-store-label">STORE MANAGEMENT</span>
+        <nav class="admin-nav" aria-label="Admin navigation">
+          <span class="admin-nav-label">WORKSPACE</span>
+          <button type="button" [class.active]="adminSection() === 'overview'" (click)="setAdminSection('overview')"><span>▦</span> Overview</button>
+          <button type="button" [class.active]="adminSection() === 'products'" (click)="setAdminSection('products')"><span>▤</span> Products <span class="nav-count">{{ adminProducts().length }}</span></button>
+          <button type="button" [class.active]="adminSection() === 'add'" (click)="setAdminSection('add')"><span>＋</span> Add a product</button>
+          <span class="admin-nav-label admin-nav-label-spaced">STORE</span>
+          <a href="/" class="admin-nav-link"><span>↗</span> View storefront</a>
+        </nav>
+        <div class="admin-sidebar-bottom">
+          <div class="admin-profile-avatar">A</div>
+          <div class="admin-profile-copy"><strong>Store admin</strong><span>Demo workspace</span></div>
+          <button type="button" class="admin-logout" (click)="adminLogout()" aria-label="Sign out">↗</button>
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <header class="admin-topbar">
+          <div>
+            <span class="admin-breadcrumb">Workspace <span>/</span> Jaldi Store</span>
+            <p>Good things, close by.</p>
+          </div>
+          <div class="admin-topbar-actions">
+            <span class="admin-status"><span></span> Store is live</span>
+            <a class="admin-view-shop" href="/">View shop <span aria-hidden="true">↗</span></a>
+          </div>
+        </header>
+
+        <div class="admin-content">
+          @if (adminNotice()) {
+            <div class="admin-alert admin-success" role="status"><span>✓</span>{{ adminNotice() }}<button type="button" (click)="adminNotice.set('')" aria-label="Dismiss">×</button></div>
+          }
+          @if (adminError()) {
+            <div class="admin-alert admin-error" role="alert"><span>!</span>{{ adminError() }}<button type="button" (click)="adminError.set('')" aria-label="Dismiss">×</button></div>
+          }
+          @if (adminSection() === 'overview') {
+            <section class="admin-page-heading">
+              <div><span class="eyebrow muted-eyebrow">YOUR STORE AT A GLANCE</span><h1>Overview</h1><p>Here’s what’s happening with your neighbourhood store.</p></div>
+              <button type="button" class="admin-primary-button" (click)="setAdminSection('add')"><span aria-hidden="true">＋</span> Add a product</button>
+            </section>
+            <section class="admin-metrics">
+              <article class="admin-metric-card"><span class="metric-icon metric-lime">▤</span><span class="metric-label">LIVE PRODUCTS</span><strong>{{ adminProducts().length }}</strong><span class="metric-footnote">Available in your storefront</span></article>
+              <article class="admin-metric-card"><span class="metric-icon metric-peach">◷</span><span class="metric-label">CATALOG STATUS</span><strong>Looking good</strong><span class="metric-footnote">Your products are ready to shop</span></article>
+              <article class="admin-metric-card"><span class="metric-icon metric-blue">⌖</span><span class="metric-label">DELIVERY AREA</span><strong>{{ location()?.city ?? 'Mumbai' }}</strong><span class="metric-footnote">Store serving {{ pincode }}</span></article>
+            </section>
+            <section class="admin-panel">
+              <div class="admin-panel-heading"><div><h2>Recently added</h2><p>Your newest products, ready for shoppers.</p></div><button type="button" class="admin-link-button" (click)="setAdminSection('products')">All products <span>→</span></button></div>
+              @if (adminLoading()) {
+                <div class="admin-table-state">Loading your product catalog…</div>
+              } @else if (adminProducts().length === 0) {
+                <div class="admin-empty-inline"><span aria-hidden="true">🧺</span><strong>Your shelves are ready for something.</strong><button type="button" class="admin-link-button" (click)="setAdminSection('add')">Add your first product →</button></div>
+              } @else {
+                <div class="admin-table-wrap">
+                  <table class="admin-table">
+                    <thead><tr><th>PRODUCT</th><th>CATEGORY</th><th>PRICE</th><th>STATUS</th></tr></thead>
+                    <tbody>
+                      @for (product of adminProducts().slice(0, 5); track product.id) {
+                        <tr><td><span class="table-product-icon" [style.background]="product.tint">{{ product.emoji }}</span><span class="table-product-name">{{ product.name }}<small>{{ product.brand }} · {{ product.unit }}</small></span></td><td>{{ product.category }}</td><td>₹{{ product.price }}</td><td><span class="product-live-status"><i></i> Live</span></td></tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </section>
+            <div class="admin-demo-notice"><span>✦</span><p><strong>Just getting started</strong>Your catalog is stored in memory for this demo. New products appear in the storefront right away; restarting the API resets the sample data.</p></div>
+          }
+
+          @if (adminSection() === 'products') {
+            <section class="admin-page-heading">
+              <div><span class="eyebrow muted-eyebrow">YOUR NEIGHBOURHOOD CATALOG</span><h1>Products</h1><p>{{ adminProducts().length }} products in your store.</p></div>
+              <button type="button" class="admin-primary-button" (click)="setAdminSection('add')"><span aria-hidden="true">＋</span> Add a product</button>
+            </section>
+            <section class="admin-panel product-list-panel">
+              <div class="admin-panel-heading"><div><h2>All products</h2><p>Products currently available in your storefront.</p></div><button type="button" class="admin-secondary-button" (click)="loadAdminProducts()">↻ Refresh</button></div>
+              @if (adminLoading()) {
+                <div class="admin-table-state">Loading your product catalog…</div>
+              } @else if (adminProducts().length === 0) {
+                <div class="admin-empty-inline"><span aria-hidden="true">🧺</span><strong>No products yet.</strong><button type="button" class="admin-link-button" (click)="setAdminSection('add')">Add a product →</button></div>
+              } @else {
+                <div class="admin-table-wrap">
+                  <table class="admin-table">
+                    <thead><tr><th>PRODUCT</th><th>CATEGORY</th><th>PRICE</th><th>TAGS</th><th>STATUS</th></tr></thead>
+                    <tbody>
+                      @for (product of adminProducts(); track product.id) {
+                        <tr><td><span class="table-product-icon" [style.background]="product.tint">{{ product.emoji }}</span><span class="table-product-name">{{ product.name }}<small>{{ product.brand }} · {{ product.unit }}</small></span></td><td>{{ product.category }}</td><td><strong>₹{{ product.price }}</strong><small class="table-mrp">MRP ₹{{ product.mrp }}</small></td><td><div class="table-tags">@for (tag of (product.tags ?? []).slice(0, 3); track tag) { <span>{{ tag }}</span> } @if (!(product.tags?.length)) { <span class="muted-tag">No tags</span> }</div></td><td><span class="product-live-status"><i></i> Live</span></td></tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </section>
+            <div class="admin-demo-notice"><span>ⓘ</span><p><strong>Demo catalog</strong>Products are held in memory while the API is running. Database persistence and product editing can be added next.</p></div>
+          }
+
+          @if (adminSection() === 'add') {
+            <section class="admin-page-heading add-page-heading">
+              <div><span class="eyebrow muted-eyebrow">GROW YOUR STORE</span><h1>Add a product</h1><p>Give your neighbours one more good thing to find.</p></div>
+              <button type="button" class="admin-back-button" (click)="setAdminSection('products')">← Back to products</button>
+            </section>
+            <form class="product-editor reference-product-editor" (ngSubmit)="addProduct()">
+              <section class="admin-panel editor-panel reference-product-panel">
+                <div class="admin-panel-heading editor-heading"><div><h2>Product</h2></div></div>
+                <div class="editor-fields">
+                  <label class="editor-field field-wide"><span>Name <i>*</i></span><input name="productName" [(ngModel)]="productDraft.name" placeholder="e.g. Amul cheese slice 20 pack" required maxlength="100" /></label>
+                  <label class="editor-field field-wide"><span>Brand</span><input name="brand" [(ngModel)]="productDraft.brand" placeholder="e.g. Amul" maxlength="60" /></label>
+                  <label class="editor-field field-wide"><span>Category <i>*</i></span><select name="category" [(ngModel)]="productDraft.category" required><option value="" disabled>Select a category</option>@for (category of categories().slice(1); track category.name) { <option [value]="category.name">{{ category.name }}</option> }</select></label>
+                  <label class="editor-field"><span>Size</span><input name="unit" [(ngModel)]="productDraft.unit" placeholder="500 ml" required maxlength="40" /></label>
+                  <label class="editor-field"><span>Price ₹ <i>*</i></span><input name="price" [(ngModel)]="productDraft.price" type="number" min="1" step="1" placeholder="0" required /></label>
+                  <label class="editor-field"><span>MRP ₹</span><input name="mrp" [(ngModel)]="productDraft.mrp" type="number" min="1" step="1" placeholder="0" /></label>
+                  <fieldset class="stock-cities field-wide">
+                    <legend>In stock in (dark stores of these cities)</legend>
+                    <div class="stock-city-list">
+                      @for (city of storeCities; track city) {
+                        <label><input type="checkbox" [checked]="isStockedIn(city)" (change)="setStockCity(city, $any($event.target).checked)" /><span>{{ city }}</span></label>
+                      }
+                    </div>
+                  </fieldset>
+                  <label class="editor-field"><span>Product badge</span><select name="badge" [(ngModel)]="productDraft.badge"><option value="">No badge</option><option>FRESH PICK</option><option>BESTSELLER</option><option>JUST IN</option><option>TOP RATED</option><option>QUICK BITE</option></select></label>
+                  <label class="editor-field"><span>Product emoji</span><input name="emoji" [(ngModel)]="productDraft.emoji" maxlength="8" placeholder="🍊" /></label>
+                </div>
+                <button type="submit" class="admin-primary-button save-product-button" [disabled]="adminSaving()">{{ adminSaving() ? 'Saving product…' : '♧  Save product' }}</button>
+              </section>
+
+              <section class="admin-panel language-tags-panel">
+                <div class="language-tags-heading">
+                  <div><h2>Search tags</h2><p>
+                    @if (suggestedTags().length > 0) { {{ suggestedTags().length }} tags suggested · {{ tagSuggestionMode() }} mode }
+                    @else { Add the words shoppers use to find this product. }
+                    @if (productDraft.name.trim()) { · spelling read as “{{ productDraft.name }}” }
+                    @if (productDraft.category) { · category: {{ productDraft.category }} }
+                  </p></div>
+                  <div class="tag-action-buttons">
+                    <button type="button" class="quick-tags-button" (click)="generateTagSuggestions()" [disabled]="!productDraft.name.trim() || !productDraft.category">ϟ &nbsp; Quick tags (rules)</button>
+                    <button type="button" class="generate-ai-button" (click)="generateAiTagSuggestions()" [disabled]="!productDraft.name.trim() || !productDraft.category || aiTagGenerating()">{{ aiTagGenerating() ? 'Generating…' : '✦  Generate with AI' }}</button>
+                  </div>
+                </div>
+                @if (aiTagMessage()) {
+                  <div class="ai-not-ready-note" role="status">{{ aiTagMessage() }}</div>
+                }
+                <div class="language-tag-list">
+                  @for (language of tagLanguages; track language.key) {
+                    <div class="language-tag-row">
+                      <span class="language-tag-label">{{ language.label }}</span>
+                      <div class="language-tag-editor">
+                        @for (tag of languageTagsFor(language.key); track tag) {
+                          <span class="language-tag-chip">{{ tag }}<button type="button" [attr.aria-label]="'Remove ' + tag + ' tag from ' + language.label" (click)="removeLanguageTag(language.key, tag)">×</button></span>
+                        }
+                        <input
+                          [name]="'tag-' + language.key"
+                          [(ngModel)]="tagInputs[language.key]"
+                          (keydown.enter)="addLanguageTag($event, language.key)"
+                          [attr.aria-label]="language.label + ' search tags'"
+                          placeholder="add + Enter"
+                        />
+                      </div>
+                    </div>
+                  }
+                </div>
+                <p class="language-tag-hint">Press Enter to add a tag. Tags from every language are searchable in the storefront.</p>
+              </section>
+            </form>
+            <div class="editor-actions reference-editor-actions">
+              <span>Saved products appear in your storefront immediately.</span>
+              <button type="button" class="admin-back-button" (click)="setAdminSection('products')">Cancel</button>
+            </div>
+          }
+        </div>
+      </main>
+    </div>
+  }
+} @else {
+<div class="announcement">
+  <span>Fresh groceries, delivered fast.</span>
+  <span class="announcement-right">Free delivery on your first order <span aria-hidden="true">→</span></span>
+</div>
+
+<header class="site-header">
+  <div class="header-main page-width">
+    <a class="brand" href="/" aria-label="Jaldi home">
+      <span class="brand-mark" aria-hidden="true">j</span>
+      <span>jaldi<span class="brand-period">.</span></span>
+    </a>
+
+    <button class="location-button" type="button" (click)="showLocationPicker.set(true)">
+      <span class="location-pin" aria-hidden="true">⌖</span>
+      <span class="location-copy">
+        <strong>{{ location()?.city ?? 'Delivering to' }}</strong>
+        <span>{{ pincode }} <span aria-hidden="true">⌄</span></span>
+      </span>
+    </button>
+
+    <form class="search-bar" (ngSubmit)="search()">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input
+        type="search"
+        name="query"
+        [(ngModel)]="query"
+        placeholder="Search for atta, dal, snacks..."
+        aria-label="Search groceries"
+      />
+      <button type="submit" aria-label="Search">Search</button>
+    </form>
+
+    <a class="account-button" href="/admin" aria-label="Store admin sign in">
+      <span aria-hidden="true">♙</span>
+      <span>Admin</span>
+    </a>
+    <button class="cart-button" type="button" (click)="showCart.set(true)">
+      <span class="cart-icon" aria-hidden="true">▱</span>
+      <span class="cart-label">My cart</span>
+      @if (cartCount() > 0) {
+        <span class="cart-count">{{ cartCount() }}</span>
+      }
+    </button>
+  </div>
+</header>
+
+<nav class="category-nav" aria-label="Shop departments">
+  <div class="page-width category-nav-inner">
+    @for (category of categories(); track category.name) {
+      <button
+        type="button"
+        [class.active]="selectedCategory() === category.name"
+        (click)="selectCategory(category.name)"
+      >
+        <span aria-hidden="true">{{ category.icon }}</span>
+        {{ category.name }}
+      </button>
+    }
+  </div>
+</nav>
+
+<main class="page-width main-content">
+  <section class="hero" aria-label="Jaldi grocery delivery">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="live-dot"></span> YOUR NEIGHBOURHOOD STORE, ONLINE</span>
+      <h1>Good food.<br /><span>Right on time.</span></h1>
+      <p>Everyday essentials, picked fresh and at your door in minutes.</p>
+      <button type="button" class="hero-cta" (click)="scrollToProducts()">Start shopping <span aria-hidden="true">→</span></button>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <span class="hero-spark spark-one">✳</span>
+      <span class="hero-spark spark-two">✦</span>
+      <span class="hero-fruit fruit-orange">🍊</span>
+      <span class="hero-fruit fruit-avocado">🥑</span>
+      <span class="hero-fruit fruit-bread">🥖</span>
+      <span class="hero-fruit fruit-leaves">🥬</span>
+      <span class="hero-note">Picked fresh<br />for you</span>
+    </div>
+    <div class="hero-delivery"><span aria-hidden="true">◷</span> At your door in <strong>{{ location()?.deliveryEta ?? '10–20 min' }}</strong></div>
+  </section>
+
+  <section class="popular-section">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow muted-eyebrow">A LITTLE OF EVERYTHING</span>
+        <h2>Shop by category</h2>
+      </div>
+      <button class="text-link" type="button" (click)="selectCategory('All items')">View all <span aria-hidden="true">→</span></button>
+    </div>
+    <div class="category-cards">
+      @for (category of categories().slice(1); track category.name) {
+        <button class="category-card" type="button" (click)="selectCategory(category.name)">
+          <span class="category-art" [style.background]="category.tint">{{ category.icon }}</span>
+          <strong>{{ category.name }}</strong>
+          <span class="category-caption">Explore range <span aria-hidden="true">↗</span></span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="products-section" id="products">
+    <div class="section-heading products-heading">
+      <div>
+        <span class="eyebrow muted-eyebrow">GOOD THINGS, CLOSE BY</span>
+        <h2>{{ query.trim() ? 'Search results' : 'Today’s favourites' }}</h2>
+        <p class="result-caption">
+          @if (loading()) {
+            Finding your favourites…
+          } @else {
+            {{ products().length }} fresh picks near {{ pincode }}
+          }
+        </p>
+      </div>
+      <label class="sort-control">
+        <span>Sort by</span>
+        <select [ngModel]="sortOrder()" (ngModelChange)="changeSort($event)" aria-label="Sort products">
+          <option value="popular">Recommended</option>
+          <option value="price-low">Price: low to high</option>
+          <option value="price-high">Price: high to low</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="product-layout">
+      <aside class="filter-panel">
+        <h3>Categories</h3>
+        <div class="filter-list">
+          @for (category of categories(); track category.name) {
+            <button type="button" [class.selected]="selectedCategory() === category.name" (click)="selectCategory(category.name)">
+              <span class="filter-icon">{{ category.icon }}</span>
+              <span>{{ category.name }}</span>
+              @if (selectedCategory() === category.name) {
+                <span class="filter-check" aria-hidden="true">✓</span>
+              }
+            </button>
+          }
+        </div>
+        <div class="filter-note">
+          <span aria-hidden="true">✦</span>
+          <strong>Good food, closer.</strong>
+          <p>Thoughtfully picked from stores in your neighbourhood.</p>
+        </div>
+      </aside>
+
+      <div class="products-area">
+        @if (errorMessage() || categoriesError()) {
+          <div class="state-card error-state" role="alert">
+            <strong>We couldn’t load the store.</strong>
+            <p>{{ errorMessage() || categoriesError() }}</p>
+            <button type="button" class="outline-button" (click)="loadProducts()">Try again</button>
+          </div>
+        } @else if (loading()) {
+          <div class="loading-state" role="status"><span class="loader"></span> Picking your groceries…</div>
+        } @else if (products().length === 0) {
+          <div class="state-card empty-state">
+            <span aria-hidden="true">🧺</span>
+            <strong>Nothing on this shelf just yet</strong>
+            <p>Try a different search or browse all of our fresh picks.</p>
+            <button type="button" class="outline-button" (click)="clearSearch()">Browse everything</button>
+          </div>
+        } @else {
+          <div class="product-grid">
+            @for (product of products(); track product.id) {
+              <article class="product-card">
+                <div class="product-image" [style.background]="product.tint">
+                  @if (product.badge) {
+                    <span class="product-badge">{{ product.badge }}</span>
+                  }
+                  <span class="product-emoji" aria-hidden="true">{{ product.emoji }}</span>
+                  <button class="wishlist-button" type="button" [attr.aria-label]="'Save ' + product.name">♡</button>
+                </div>
+                <div class="product-info">
+                  <span class="product-category">{{ product.category }}</span>
+                  <h3>{{ product.name }}</h3>
+                  <p class="product-unit">{{ product.brand }} · {{ product.unit }}</p>
+                  <div class="product-rating"><span aria-hidden="true">★</span> {{ product.rating }} <span class="review-count">({{ product.reviews }})</span></div>
+                  <div class="product-buy-row">
+                    <div class="price-block">
+                      <strong>₹{{ product.price }}</strong>
+                      @if (product.mrp > product.price) {
+                        <del>₹{{ product.mrp }}</del>
+                      }
+                    </div>
+                    @if (quantityFor(product.id) > 0) {
+                      <div class="quantity-control" [attr.aria-label]="quantityFor(product.id) + ' in cart'">
+                        <button type="button" (click)="changeQuantity(product, -1)" [attr.aria-label]="'Remove one ' + product.name">−</button>
+                        <span>{{ quantityFor(product.id) }}</span>
+                        <button type="button" (click)="changeQuantity(product, 1)" [attr.aria-label]="'Add one ' + product.name">+</button>
+                      </div>
+                    } @else {
+                      <button class="add-button" type="button" (click)="changeQuantity(product, 1)">ADD <span aria-hidden="true">+</span></button>
+                    }
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true">j</span><span>jaldi<span class="brand-period">.</span></span></a>
+    <span>Good things, close by.</span>
+    <span>Made for your neighbourhood <span aria-hidden="true">♥</span></span>
+  </footer>
+</main>
+
+@if (showLocationPicker()) {
+  <div class="modal-backdrop" (click)="showLocationPicker.set(false)" (keydown.escape)="showLocationPicker.set(false)">
+    <section class="location-dialog" role="dialog" aria-modal="true" aria-labelledby="location-title" (click)="$event.stopPropagation()">
+      <button class="dialog-close" type="button" aria-label="Close location picker" (click)="showLocationPicker.set(false)">×</button>
+      <span class="dialog-icon" aria-hidden="true">⌖</span>
+      <h2 id="location-title">Where should we deliver?</h2>
+      <p>Enter your 6-digit PIN code to find your neighbourhood store.</p>
+      <form class="pincode-form" (ngSubmit)="updateLocation()">
+        <input name="pincode" [(ngModel)]="pincodeDraft" inputmode="numeric" maxlength="6" placeholder="e.g. 400001" aria-label="PIN code" />
+        <button type="submit" [disabled]="locationLoading()">{{ locationLoading() ? 'Checking…' : 'Set location' }}</button>
+      </form>
+      @if (locationError()) {
+        <p class="form-error" role="alert">{{ locationError() }}</p>
+      }
+    </section>
+  </div>
+}
+
+@if (showCart()) {
+  <div class="drawer-backdrop" (click)="showCart.set(false)">
+    <aside class="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" (click)="$event.stopPropagation()">
+      <div class="drawer-heading">
+        <div><span class="eyebrow muted-eyebrow">YOUR GOODIES</span><h2 id="cart-title">My cart <span>({{ cartCount() }})</span></h2></div>
+        <button class="dialog-close" type="button" aria-label="Close cart" (click)="showCart.set(false)">×</button>
+      </div>
+      @if (cartItems().length === 0) {
+        <div class="cart-empty"><span aria-hidden="true">🛍️</span><strong>Your cart is taking a little break</strong><p>Add something fresh and lovely.</p></div>
+      } @else {
+        <div class="cart-items">
+          @for (item of cartItems(); track item.product.id) {
+            <div class="cart-item">
+              <span class="cart-item-art" [style.background]="item.product.tint" aria-hidden="true">{{ item.product.emoji }}</span>
+              <div class="cart-item-copy"><strong>{{ item.product.name }}</strong><span>{{ item.product.unit }} · ₹{{ item.product.price }}</span></div>
+              <div class="quantity-control">
+                <button type="button" (click)="changeQuantity(item.product, -1)" aria-label="Remove one">−</button>
+                <span>{{ item.quantity }}</span>
+                <button type="button" (click)="changeQuantity(item.product, 1)" aria-label="Add one">+</button>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="cart-summary">
+          <p><span>Subtotal</span><strong>₹{{ cartSubtotal() }}</strong></p>
+          <p><span>Delivery</span><strong class="free-delivery">FREE</strong></p>
+          <button type="button" class="checkout-button" (click)="showCart.set(false)">Continue to checkout <span>₹{{ cartSubtotal() }} →</span></button>
+          <span class="checkout-note">Taxes included · No minimum order</span>
+        </div>
+      }
+    </aside>
+  </div>
+}
+}

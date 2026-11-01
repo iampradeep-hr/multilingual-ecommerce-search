@@ -1,0 +1,68 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-jaldi}:${MONGO_ROOT_PASSWORD:-jaldi-local-dev}@mongodb:27017/jaldi?authSource=admin
+      OLLAMA_URL: http://ollama:11434
+      GEMMA_MODEL: ${GEMMA_MODEL:-gemma3:4b}
+      JALDI_ADMIN_USERNAME: ${JALDI_ADMIN_USERNAME:-admin}
+      JALDI_ADMIN_PASSWORD: ${JALDI_ADMIN_PASSWORD:-jaldi123}
+    ports:
+      - "8080:8080"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      ollama-models:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-jaldi}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-jaldi-local-dev}
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: 24h
+    restart: unless-stopped
+
+  ollama-models:
+    image: ollama/ollama:latest
+    environment:
+      GEMMA_MODEL: ${GEMMA_MODEL:-gemma3:4b}
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - until ollama list >/dev/null 2>&1; do sleep 2; done; ollama pull "$$GEMMA_MODEL"
+    volumes:
+      - ollama-data:/root/.ollama
+    depends_on:
+      - ollama
+    restart: "no"
+
+volumes:
+  mongo-data:
+  ollama-data:
