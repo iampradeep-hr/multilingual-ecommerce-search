@@ -60,7 +60,7 @@ export class App implements OnInit {
   protected readonly tagSuggestionMode = signal<'rules' | 'gemma'>('rules');
   protected readonly aiTagGenerating = signal(false);
   protected readonly aiTagMessage = signal('');
-  protected loginUsername = 'root';
+  protected loginUsername = 'admin';
   protected loginPassword = '';
   protected loginError = '';
   protected tagInputs: Record<string, string> = {};

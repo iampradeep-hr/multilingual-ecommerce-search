@@ -1,7 +1,7 @@
 @if (isAdminRoute) {
   @if (!isAdminAuthenticated()) {
     <main class="admin-login-page">
-      <a class="brand admin-login-brand" href="/"><span class="brand-mark" aria-hidden="true">j</span><span>jaldi<span class="brand-period">.</span></span></a>
+      <a class="brand admin-login-brand" href="/" aria-label="Mila? home"><span class="brand-mark" aria-hidden="true">M</span><span>Mila<span class="brand-period">?</span></span></a>
       <section class="admin-login-card">
         <span class="eyebrow muted-eyebrow">STORE MANAGEMENT</span>
         <h1>Welcome back.</h1>
@@ -20,7 +20,7 @@
           }
           <button type="submit" class="admin-primary-button">Sign in to dashboard <span aria-hidden="true">→</span></button>
         </form>
-        <p class="demo-credential-note"><strong>Local test login:</strong> root / root</p>
+        <p class="demo-credential-note"><strong>Local test login:</strong> admin / jaldi123</p>
         <a class="back-to-shop" href="/">← Back to shop</a>
       </section>
       <p class="admin-login-footnote">Demo credentials only. Replace before deploying publicly.</p>
@@ -28,7 +28,7 @@
   } @else {
     <div class="admin-shell">
       <aside class="admin-sidebar">
-        <a class="brand admin-brand" href="/"><span class="brand-mark" aria-hidden="true">j</span><span>jaldi<span class="brand-period">.</span></span></a>
+        <a class="brand admin-brand" href="/" aria-label="Mila? home"><span class="brand-mark" aria-hidden="true">M</span><span>Mila<span class="brand-period">?</span></span></a>
         <span class="admin-store-label">STORE MANAGEMENT</span>
         <nav class="admin-nav" aria-label="Admin navigation">
           <span class="admin-nav-label">WORKSPACE</span>
@@ -48,7 +48,7 @@
       <main class="admin-main">
         <header class="admin-topbar">
           <div>
-            <span class="admin-breadcrumb">Workspace <span>/</span> Jaldi Store</span>
+            <span class="admin-breadcrumb">Workspace <span>/</span> Mila? Store</span>
             <p>Good things, close by.</p>
           </div>
           <div class="admin-topbar-actions">
@@ -207,9 +207,9 @@
 
 <header class="site-header">
   <div class="header-main page-width">
-    <a class="brand" href="/" aria-label="Jaldi home">
-      <span class="brand-mark" aria-hidden="true">j</span>
-      <span>jaldi<span class="brand-period">.</span></span>
+    <a class="brand" href="/" aria-label="Mila? home">
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <span>Mila<span class="brand-period">?</span></span>
     </a>
 
     <button class="location-button" type="button" (click)="showLocationPicker.set(true)">
@@ -378,7 +378,7 @@
     </div>
   </section>
 
-  <section class="hero" aria-label="Jaldi grocery delivery">
+  <section class="hero" aria-label="Mila? grocery delivery">
     <div class="hero-copy">
       <span class="eyebrow"><span class="live-dot"></span> YOUR NEIGHBOURHOOD STORE, ONLINE</span>
       <h1>Your daily list.<br /><span>Already handled.</span></h1>
@@ -398,7 +398,7 @@
   </section>
 
   <footer class="site-footer">
-    <a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true">j</span><span>jaldi<span class="brand-period">.</span></span></a>
+    <a class="brand footer-brand" href="/" aria-label="Mila? home"><span class="brand-mark" aria-hidden="true">M</span><span>Mila<span class="brand-period">?</span></span></a>
     <span>Good things, close by.</span>
     <span>Made for your neighbourhood <span aria-hidden="true">♥</span></span>
   </footer>

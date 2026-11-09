@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Jaldi: Start API",
+      "label": "Mila?: Start API",
       "type": "shell",
       "command": "./mvnw",
       "args": ["spring-boot:run"],
@@ -13,7 +13,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Jaldi: Start storefront",
+      "label": "Mila?: Start storefront",
       "type": "shell",
       "command": "npm",
       "args": ["start"],
