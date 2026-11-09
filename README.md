@@ -23,7 +23,7 @@ Open [http://localhost:4200](http://localhost:4200). The first launch builds the
 
 `podman compose down` stops the services without deleting MongoDB data, Kafka data, the Typesense index, or the downloaded model.
 
-The demo search recognizes Hinglish and Hindi product tags. For example, searching `machar kaat rahe hai baba` returns the Mortein mosquito repellent products.
+The demo search recognizes Hinglish and Hindi product tags. For example, searching `mosquito repellent` or `मच्छर भगाने की दवा` finds the Mortein mosquito repellent products.
 
 ## Admin
 

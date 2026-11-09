@@ -100,8 +100,8 @@ class ProductCatalogServiceTest {
     }
 
     @Test
-    void hinglishNeedPhraseFindsMosquitoRepellentProducts() {
-        List<Product> products = catalog.search("machar kaat rahe hai baba", "All items", "popular");
+    void hinglishMosquitoRepellentQueryFindsProducts() {
+        List<Product> products = catalog.search("machhar bhagane ki dawa", "All items", "popular");
 
         assertEquals(2, products.size());
         assertTrue(products.stream().allMatch(product -> product.brand().equals("Mortein")));

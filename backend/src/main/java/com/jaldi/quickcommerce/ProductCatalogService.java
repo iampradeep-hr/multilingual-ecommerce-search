@@ -149,7 +149,7 @@ public class ProductCatalogService {
                             "mosquito killer", "mosquito repellent", "mosquito control", "mosquitoes",
                             "mosquito bites", "insect repellent", "insect killer", "machar", "machhar",
                             "machar bhagane ka", "machhar bhagane ki dawa", "machhar maarne ka",
-                            "kaat rahe hai", "machar kaat rahe hai baba", "mortein card"),
+                            "kaat rahe hai", "mortein card"),
                     Map.of(
                             "english", List.of("mosquito repellent", "mosquito killer", "insect repellent"),
                             "hinglish", List.of(
@@ -172,10 +172,9 @@ public class ProductCatalogService {
                     "🦟",
                     "#e6efd9",
                     List.of(
-                            "mosquito killer", "mosquito repellent", "mosquito liquid", "mosquito vaporizer",
+                            "mosquito killer", "mosquito repellent",                             "mosquito liquid", "mosquito vaporizer",
                             "insect repellent", "machar", "machhar", "machar bhagane ka",
                             "machhar bhagane ki dawa", "machhar maarne ka", "kaat rahe hai",
-                            "machar kaat rahe hai baba",
                             "mortein liquid"),
                     Map.of(
                             "english", List.of("mosquito repellent", "mosquito killer", "insect repellent"),
