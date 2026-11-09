@@ -27,9 +27,13 @@ public class GemmaTagService {
             Map.entry("gujarati", "Gujarati"), Map.entry("punjabi", "Punjabi"),
             Map.entry("odia", "Odia"), Map.entry("tamil", "Tamil"),
             Map.entry("telugu", "Telugu"), Map.entry("kannada", "Kannada"),
-            Map.entry("malayalam", "Malayalam"), Map.entry("urdu", "Urdu"),
+            Map.entry("malayalam", "Malayalam"),
             Map.entry("typos", "common misspellings"),
             Map.entry("aiWords", "related shopper search phrases"));
+    private static final List<String> REQUIRED_LANGUAGES = List.of(
+            "english", "hinglish", "hindi", "marathi", "gujarati", "punjabi",
+            "tamil", "telugu", "kannada", "malayalam", "typos", "aiWords");
+    private static final Map<String, Object> TAG_SCHEMA = createTagSchema();
 
     private final String provider;
     private final String serviceUrl;
@@ -80,16 +84,23 @@ public class GemmaTagService {
 
     private Map<String, Object> generateWithOllama(TagGenerationRequest input) {
         Map<String, Object> response = restClient.post()
-                .uri(serviceUrl + "/api/generate")
+                .uri(serviceUrl + "/api/chat")
                 .body(Map.of(
                         "model", model,
-                        "prompt", buildPrompt(input),
-                        "format", "json",
+                        "messages", List.of(
+                                Map.of("role", "system", "content", buildSystemPrompt()),
+                                Map.of("role", "user", "content", buildUserPrompt(input))),
+                        "format", TAG_SCHEMA,
                         "stream", false,
-                        "options", Map.of("temperature", 0.1)))
+                        "options", Map.of(
+                                "temperature", 0.1,
+                                "num_predict", 600,
+                                "repeat_penalty", 1.1,
+                                "num_ctx", 2048)))
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
-        if (response == null || !(response.get("response") instanceof String generated)) {
+        Object message = response == null ? null : response.get("message");
+        if (!(message instanceof Map<?, ?> messageData) || !(messageData.get("content") instanceof String generated)) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Gemma returned an empty response.");
         }
         try {
@@ -112,18 +123,42 @@ public class GemmaTagService {
         return new LinkedHashMap<>(response);
     }
 
-    private String buildPrompt(TagGenerationRequest input) {
+    private String buildSystemPrompt() {
         String languages = LANGUAGES.entrySet().stream()
                 .map(entry -> entry.getKey() + " (" + entry.getValue() + ")")
                 .collect(java.util.stream.Collectors.joining(", "));
         return "Generate useful search tags for this exact grocery product for Indian shoppers. "
                 + "Return only a JSON object with these keys: " + languages + ". "
-                + "Every value must be an array of up to 5 short strings. "
-                + "Use empty arrays if unsure about a translation. Do not invent variants or product claims. "
-                + "Example: {\"english\":[\"milk\"],\"hinglish\":[\"doodh\"]}.\n"
-                + "Product name: " + input.name() + "\n"
+                + "Every value must be an array of up to 3 short strings, following the provided JSON schema. "
+                + "Always generate tags for Marathi, Gujarati, Punjabi, Tamil, Telugu, Kannada, and Malayalam. "
+                + "Use each language's native script for those tags, and never leave those language arrays empty. "
+                + "Include common transliterations, alternate spellings, and natural need-based search phrases "
+                + "that shoppers might use when asking for this product. Use an empty array if unsure about a translation. "
+                + "Do not invent product variants or product claims, and never include unrelated products. "
+                + "Every tag must be a synonym, translation, misspelling, or need-based phrase for this exact product. "
+                + "Keep Hinglish tags in Roman script. Never return offensive or insulting terms. "
+                + "Keep each language concise; omit optional language arrays when you cannot provide accurate tags.";
+    }
+
+    private String buildUserPrompt(TagGenerationRequest input) {
+        return "Product name: " + input.name() + "\n"
                 + "Brand: " + (input.brand() == null ? "" : input.brand()) + "\n"
                 + "Category: " + (input.category() == null ? "" : input.category());
+    }
+
+    private static Map<String, Object> createTagSchema() {
+        Map<String, Object> properties = new LinkedHashMap<>();
+        for (String language : LANGUAGES.keySet()) {
+            properties.put(language, Map.of(
+                    "type", "array",
+                    "items", Map.of("type", "string"),
+                    "maxItems", 3));
+        }
+        return Map.of(
+                "type", "object",
+                "properties", properties,
+                "required", REQUIRED_LANGUAGES,
+                "additionalProperties", false);
     }
 
     private Map<String, List<String>> cleanTags(Map<String, Object> response) {

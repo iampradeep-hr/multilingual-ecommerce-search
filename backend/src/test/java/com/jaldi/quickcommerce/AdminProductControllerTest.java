@@ -1,7 +1,9 @@
 package com.jaldi.quickcommerce;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -13,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest(properties = {
         "spring.security.user.name=admin",
@@ -26,6 +29,9 @@ class AdminProductControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void adminCatalogRequiresAuthentication() throws Exception {
@@ -57,7 +63,7 @@ class AdminProductControllerTest {
                                   "stockCities": ["Mumbai"]
                                 }
                                 """))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Alphonso Mango"))
                 .andExpect(jsonPath("$.tags[0]").value("mango"))
                 .andExpect(jsonPath("$.languageTags.hindi[0]").value("आम"))
@@ -69,7 +75,45 @@ class AdminProductControllerTest {
 
         mockMvc.perform(get("/api/search").param("q", "seasonal"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Alphonso Mango"));
+                .andExpect(jsonPath("$[*].name").value(hasItem("Alphonso Mango")));
+    }
+
+    @Test
+    void adminCanDeleteProductFromCatalogAndSearch() throws Exception {
+        var response = mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", ADMIN_AUTHORIZATION)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Temporary Delete Test Item",
+                                  "brand": "Test",
+                                  "category": "Fruits & veg",
+                                  "unit": "1 pc",
+                                  "price": 10,
+                                  "mrp": 10,
+                                  "badge": "",
+                                  "emoji": "🍎",
+                                  "tint": "#edf2e4",
+                                  "tags": ["temporary-delete-test"],
+                                  "languageTags": {},
+                                  "stockCities": []
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String productId = objectMapper.readValue(response.getResponse().getContentAsString(), Product.class).id();
+
+        mockMvc.perform(delete("/api/admin/products/{productId}", productId)
+                        .header("Authorization", ADMIN_AUTHORIZATION))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/admin/products")
+                        .header("Authorization", ADMIN_AUTHORIZATION))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].id").value(org.hamcrest.Matchers.not(hasItem(productId))));
+        mockMvc.perform(get("/api/search").param("q", "temporary-delete-test"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test

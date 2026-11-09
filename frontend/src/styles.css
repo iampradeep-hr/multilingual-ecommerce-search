@@ -6,8 +6,8 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #293d2d;
-  background: #fbfcf8;
+  color: #25314a;
+  background: #f5f6f9;
   font-weight: 400;
 }
 
@@ -36,11 +36,11 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid #789744;
+  outline: 2px solid #fb7953;
   outline-offset: 3px;
 }
 
 ::selection {
-  background: #e2efc4;
-  color: #193a2b;
+  background: #e8f4bd;
+  color: #17223b;
 }

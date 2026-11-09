@@ -20,7 +20,7 @@
           }
           <button type="submit" class="admin-primary-button">Sign in to dashboard <span aria-hidden="true">→</span></button>
         </form>
-        <p class="demo-credential-note"><strong>Local demo:</strong> admin / jaldi123</p>
+        <p class="demo-credential-note"><strong>Local test login:</strong> root / root</p>
         <a class="back-to-shop" href="/">← Back to shop</a>
       </section>
       <p class="admin-login-footnote">Demo credentials only. Replace before deploying publicly.</p>
@@ -93,7 +93,7 @@
                 </div>
               }
             </section>
-            <div class="admin-demo-notice"><span>✦</span><p><strong>Just getting started</strong>Your catalog is stored in memory for this demo. New products appear in the storefront right away; restarting the API resets the sample data.</p></div>
+            <div class="admin-demo-notice"><span>✦</span><p><strong>Catalog and search are connected</strong>Products are saved in MongoDB and indexed in Typesense for storefront search.</p></div>
           }
 
           @if (adminSection() === 'products') {
@@ -110,17 +110,17 @@
               } @else {
                 <div class="admin-table-wrap">
                   <table class="admin-table">
-                    <thead><tr><th>PRODUCT</th><th>CATEGORY</th><th>PRICE</th><th>TAGS</th><th>STATUS</th></tr></thead>
+                    <thead><tr><th>PRODUCT</th><th>CATEGORY</th><th>PRICE</th><th>TAGS</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
                     <tbody>
                       @for (product of adminProducts(); track product.id) {
-                        <tr><td><span class="table-product-icon" [style.background]="product.tint">{{ product.emoji }}</span><span class="table-product-name">{{ product.name }}<small>{{ product.brand }} · {{ product.unit }}</small></span></td><td>{{ product.category }}</td><td><strong>₹{{ product.price }}</strong><small class="table-mrp">MRP ₹{{ product.mrp }}</small></td><td><div class="table-tags">@for (tag of (product.tags ?? []).slice(0, 3); track tag) { <span>{{ tag }}</span> } @if (!(product.tags?.length)) { <span class="muted-tag">No tags</span> }</div></td><td><span class="product-live-status"><i></i> Live</span></td></tr>
+                        <tr><td><span class="table-product-icon" [style.background]="product.tint">{{ product.emoji }}</span><span class="table-product-name">{{ product.name }}<small>{{ product.brand }} · {{ product.unit }}</small></span></td><td>{{ product.category }}</td><td><strong>₹{{ product.price }}</strong><small class="table-mrp">MRP ₹{{ product.mrp }}</small></td><td><div class="table-tags">@for (tag of (product.tags ?? []).slice(0, 3); track tag) { <span>{{ tag }}</span> } @if (!(product.tags?.length)) { <span class="muted-tag">No tags</span> }</div></td><td><span class="product-live-status"><i></i> Live</span></td><td><button type="button" class="admin-delete-product" (click)="deleteProduct(product)" [disabled]="deletingProductId() === product.id" [attr.aria-label]="'Delete ' + product.name">{{ deletingProductId() === product.id ? 'Deleting…' : 'Delete' }}</button></td></tr>
                       }
                     </tbody>
                   </table>
                 </div>
               }
             </section>
-            <div class="admin-demo-notice"><span>ⓘ</span><p><strong>Demo catalog</strong>Products are held in memory while the API is running. Database persistence and product editing can be added next.</p></div>
+            <div class="admin-demo-notice"><span>ⓘ</span><p><strong>Live catalog</strong>Products persist in MongoDB, and Typesense indexes product names and multilingual search tags.</p></div>
           }
 
           @if (adminSection() === 'add') {
@@ -262,44 +262,6 @@
 </nav>
 
 <main class="page-width main-content">
-  <section class="hero" aria-label="Jaldi grocery delivery">
-    <div class="hero-copy">
-      <span class="eyebrow"><span class="live-dot"></span> YOUR NEIGHBOURHOOD STORE, ONLINE</span>
-      <h1>Good food.<br /><span>Right on time.</span></h1>
-      <p>Everyday essentials, picked fresh and at your door in minutes.</p>
-      <button type="button" class="hero-cta" (click)="scrollToProducts()">Start shopping <span aria-hidden="true">→</span></button>
-    </div>
-    <div class="hero-art" aria-hidden="true">
-      <span class="hero-spark spark-one">✳</span>
-      <span class="hero-spark spark-two">✦</span>
-      <span class="hero-fruit fruit-orange">🍊</span>
-      <span class="hero-fruit fruit-avocado">🥑</span>
-      <span class="hero-fruit fruit-bread">🥖</span>
-      <span class="hero-fruit fruit-leaves">🥬</span>
-      <span class="hero-note">Picked fresh<br />for you</span>
-    </div>
-    <div class="hero-delivery"><span aria-hidden="true">◷</span> At your door in <strong>{{ location()?.deliveryEta ?? '10–20 min' }}</strong></div>
-  </section>
-
-  <section class="popular-section">
-    <div class="section-heading">
-      <div>
-        <span class="eyebrow muted-eyebrow">A LITTLE OF EVERYTHING</span>
-        <h2>Shop by category</h2>
-      </div>
-      <button class="text-link" type="button" (click)="selectCategory('All items')">View all <span aria-hidden="true">→</span></button>
-    </div>
-    <div class="category-cards">
-      @for (category of categories().slice(1); track category.name) {
-        <button class="category-card" type="button" (click)="selectCategory(category.name)">
-          <span class="category-art" [style.background]="category.tint">{{ category.icon }}</span>
-          <strong>{{ category.name }}</strong>
-          <span class="category-caption">Explore range <span aria-hidden="true">↗</span></span>
-        </button>
-      }
-    </div>
-  </section>
-
   <section class="products-section" id="products">
     <div class="section-heading products-heading">
       <div>
@@ -349,7 +311,7 @@
           <div class="state-card error-state" role="alert">
             <strong>We couldn’t load the store.</strong>
             <p>{{ errorMessage() || categoriesError() }}</p>
-            <button type="button" class="outline-button" (click)="loadProducts()">Try again</button>
+            <button type="button" class="outline-button" (click)="retryStoreLoad()">Try again</button>
           </div>
         } @else if (loading()) {
           <div class="loading-state" role="status"><span class="loader"></span> Picking your groceries…</div>
@@ -400,6 +362,39 @@
         }
       </div>
     </div>
+  </section>
+
+  <section class="quick-searches" aria-labelledby="quick-search-title">
+    <div>
+      <span class="eyebrow muted-eyebrow">SEARCH IN YOUR OWN WORDS</span>
+      <h2 id="quick-search-title">Not sure what it’s called?</h2>
+      <p>Try a need, a nickname, or another language.</p>
+    </div>
+    <div class="quick-search-list">
+      <button type="button" (click)="searchFor('machar kaat rahe hai baba')"><span aria-hidden="true">🦟</span> machar kaat rahe hai baba</button>
+      <button type="button" (click)="searchFor('मच्छर भगाने की दवा')"><span aria-hidden="true">🔎</span> मच्छर भगाने की दवा</button>
+      <button type="button" (click)="searchFor('doodh')"><span aria-hidden="true">🥛</span> doodh</button>
+      <button type="button" (click)="searchFor('tamatar')"><span aria-hidden="true">🍅</span> tamatar</button>
+    </div>
+  </section>
+
+  <section class="hero" aria-label="Jaldi grocery delivery">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="live-dot"></span> YOUR NEIGHBOURHOOD STORE, ONLINE</span>
+      <h1>Your daily list.<br /><span>Already handled.</span></h1>
+      <p>Tell us what you need in English, Hindi, or Hinglish. We’ll find it on your neighbourhood shelf.</p>
+      <button type="button" class="hero-cta" (click)="scrollToProducts()">Back to products <span aria-hidden="true">↑</span></button>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <span class="hero-spark spark-one">✳</span>
+      <span class="hero-spark spark-two">✦</span>
+      <span class="hero-fruit fruit-orange">🍊</span>
+      <span class="hero-fruit fruit-avocado">🥑</span>
+      <span class="hero-fruit fruit-bread">🥖</span>
+      <span class="hero-fruit fruit-leaves">🥬</span>
+      <span class="hero-note">Your store,<br />a few taps away</span>
+    </div>
+    <div class="hero-delivery"><span aria-hidden="true">◷</span> At your door in <strong>{{ location()?.deliveryEta ?? '10–20 min' }}</strong></div>
   </section>
 
   <footer class="site-footer">

@@ -5,7 +5,8 @@ services:
     ports:
       - "4200:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
   backend:
@@ -13,22 +14,39 @@ services:
       context: ./backend
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-jaldi}:${MONGO_ROOT_PASSWORD:-jaldi-local-dev}@mongodb:27017/jaldi?authSource=admin
+      SPRING_MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-jaldi}:${MONGO_ROOT_PASSWORD:-jaldi-local-dev}@mongodb:27017/jaldi?authSource=admin
       OLLAMA_URL: http://ollama:11434
       GEMMA_MODEL: ${GEMMA_MODEL:-gemma3:4b}
+      TYPESENSE_ENABLED: "true"
+      TYPESENSE_URL: http://typesense:8108
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-jaldi-local-typesense-key}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_PREFIX: ${KAFKA_TOPIC_PREFIX:-jaldi.}
       JALDI_ADMIN_USERNAME: ${JALDI_ADMIN_USERNAME:-admin}
       JALDI_ADMIN_PASSWORD: ${JALDI_ADMIN_PASSWORD:-jaldi123}
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "</dev/tcp/127.0.0.1/8080"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
     depends_on:
       mongodb:
         condition: service_healthy
+      typesense:
+        condition: service_healthy
       ollama-models:
         condition: service_completed_successfully
+      ollama:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     restart: unless-stopped
 
   mongodb:
-    image: mongo:8
+    image: mongo:7.0
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-jaldi}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-jaldi-local-dev}
@@ -43,10 +61,62 @@ services:
 
   ollama:
     image: ollama/ollama:latest
+    ports:
+      - "127.0.0.1:11434:11434"
     volumes:
       - ollama-data:/root/.ollama
     environment:
       OLLAMA_KEEP_ALIVE: 24h
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  typesense:
+    image: typesense/typesense:29.0
+    command:
+      - "--data-dir"
+      - "/data"
+      - "--api-key"
+      - "${TYPESENSE_API_KEY:-jaldi-local-typesense-key}"
+      - "--enable-cors"
+    volumes:
+      - typesense-data:/data
+    healthcheck:
+      test: ["CMD", "bash", "-c", "</dev/tcp/127.0.0.1/8108"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  kafka:
+    image: apache/kafka:3.9.1
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "bash", "-c", "</dev/tcp/127.0.0.1/9092"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
     restart: unless-stopped
 
   ollama-models:
@@ -66,3 +136,5 @@ services:
 volumes:
   mongo-data:
   ollama-data:
+  typesense-data:
+  kafka-data:

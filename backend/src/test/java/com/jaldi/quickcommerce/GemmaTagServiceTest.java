@@ -34,10 +34,10 @@ class GemmaTagServiceTest {
             exchange.getResponseBody().write(response);
             exchange.close();
         });
-        server.createContext("/api/generate", exchange -> {
+        server.createContext("/api/chat", exchange -> {
             requestBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
             byte[] response = """
-                    {"response":"{\\"english\\":[\\"milk\\"],\\"hindi\\":[\\"दूध\\"]}"}
+                    {"message":{"content":"{\\"english\\":[\\"milk\\"],\\"hindi\\":[\\"दूध\\"]}"}}
                     """.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(200, response.length);
@@ -83,7 +83,17 @@ class GemmaTagServiceTest {
         assertEquals(List.of("milk"), tags.get("english"));
         assertEquals(List.of("दूध"), tags.get("hindi"));
         assertTrue(requestBody.get().contains("\"model\":\"gemma3:4b\""));
-        assertTrue(requestBody.get().contains("\"format\":\"json\""));
+        assertTrue(requestBody.get().contains("\"temperature\":0.1"));
+        assertTrue(requestBody.get().contains("\"num_predict\":600"));
+        assertTrue(requestBody.get().contains("\"repeat_penalty\":1.1"));
+        assertTrue(requestBody.get().contains("\"num_ctx\":2048"));
+        assertTrue(requestBody.get().contains("\"format\":"));
+        assertTrue(requestBody.get().contains("\"type\":\"object\""));
+        assertTrue(requestBody.get().contains(
+                "\"required\":[\"english\",\"hinglish\",\"hindi\",\"marathi\",\"gujarati\",\"punjabi\",\"tamil\",\"telugu\",\"kannada\",\"malayalam\",\"typos\",\"aiWords\"]"));
+        assertFalse(requestBody.get().contains("\"urdu\""));
+        assertTrue(requestBody.get().contains("\"maxItems\":3"));
+        assertTrue(requestBody.get().contains("\"additionalProperties\":false"));
     }
 
     private String tagResponse() {

@@ -25,4 +25,14 @@ public class InMemoryProductCatalogStore implements ProductCatalogStore {
         products.put(product.id(), product);
         return product;
     }
+
+    @Override
+    public boolean existsById(String id) {
+        return products.containsKey(id);
+    }
+
+    @Override
+    public void deleteById(String id) {
+        products.remove(id);
+    }
 }

@@ -617,6 +617,29 @@
   color: #9da297;
 }
 
+.admin-delete-product {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid #f0c7c2;
+  border-radius: 9px;
+  background: #fff;
+  color: #a63d35;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.admin-delete-product:hover:not(:disabled) {
+  border-color: #df837a;
+  background: #fff4f2;
+}
+
+.admin-delete-product:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
 .admin-empty-inline,
 .admin-table-state {
   display: flex;
@@ -1359,5 +1382,183 @@
 
   .language-tag-row {
     grid-template-columns: 58px minmax(0, 1fr);
+  }
+}
+
+/* Original Jaldi admin refresh, coordinated with the storefront palette. */
+.admin-login-page {
+  background:
+    radial-gradient(ellipse at 50% 15%, rgb(216 255 87 / 28%), transparent 36%),
+    #f4f5f8;
+}
+
+.admin-login-card {
+  border-color: #e6e9f0;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgb(23 34 59 / 9%);
+}
+
+.admin-login-card h1 {
+  color: #17223b;
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  font-weight: 750;
+}
+
+.admin-primary-button {
+  border-radius: 10px;
+  background: #17223b;
+}
+
+.admin-primary-button:hover {
+  background: #2b3b5f;
+}
+
+.demo-credential-note {
+  background: #f3f8e6;
+  color: #425732 !important;
+}
+
+.admin-shell {
+  background: #f5f6f9;
+}
+
+.admin-sidebar {
+  border-color: #26334e;
+  background: #17223b;
+}
+
+.admin-sidebar .brand {
+  color: #fff;
+}
+
+.admin-sidebar .brand-period {
+  color: #fb7953;
+}
+
+.admin-store-label,
+.admin-nav-label {
+  color: #8d99b2;
+}
+
+.admin-nav > button {
+  color: #c1c9d8;
+}
+
+.admin-nav > button:hover,
+.admin-nav > button.active {
+  background: #273653;
+  color: #e0ff7b;
+}
+
+.admin-nav > button.active::before {
+  background: #d8ff57;
+}
+
+.admin-nav-link {
+  color: #c1c9d8;
+}
+
+.admin-sidebar-bottom {
+  border-color: #2c3851;
+}
+
+.admin-profile-avatar {
+  background: #d8ff57;
+  color: #17223b;
+}
+
+.admin-profile-copy strong {
+  color: #f4f6fb;
+}
+
+.admin-profile-copy span,
+.admin-logout {
+  color: #a6b0c4;
+}
+
+.admin-main {
+  color: #25314a;
+}
+
+.admin-topbar {
+  border-color: #e7e9ef;
+  background: #fff;
+}
+
+.admin-topbar p,
+.admin-breadcrumb {
+  color: #8991a1;
+}
+
+.admin-status {
+  color: #596778;
+}
+
+.admin-status > span,
+.product-live-status > i {
+  background: #8dbb35;
+}
+
+.admin-view-shop {
+  border-color: #e5e8ef;
+  border-radius: 9px;
+  color: #34415b;
+}
+
+.admin-page-heading h1 {
+  color: #17223b;
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  font-weight: 750;
+  letter-spacing: -0.8px;
+}
+
+.admin-metric-card,
+.admin-panel {
+  border-color: #e5e8ef;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgb(23 34 59 / 3%);
+}
+
+.metric-lime {
+  background: #f3f8e3;
+  color: #607d2e;
+}
+
+.admin-panel-heading h2 {
+  color: #25314a;
+}
+
+.admin-table thead {
+  background: #f6f7fa;
+}
+
+.admin-demo-notice {
+  border-color: #e0e9ce;
+  border-radius: 11px;
+  background: #f4f8e9;
+}
+
+.quick-tags-button,
+.generate-ai-button {
+  border-radius: 9px;
+}
+
+@media (max-width: 650px) {
+  .admin-sidebar {
+    border-bottom-color: #2c3851;
+  }
+
+  .admin-sidebar .brand {
+    color: #fff;
+  }
+
+  .admin-nav > button {
+    color: #c1c9d8;
+  }
+
+  .admin-nav > button:hover,
+  .admin-nav > button.active {
+    background: #273653;
+    color: #e0ff7b;
   }
 }

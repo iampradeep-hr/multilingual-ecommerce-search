@@ -99,6 +99,12 @@ export class CommerceApiService {
     return this.http.post<Product>('/api/admin/products', product, { headers: this.adminHeaders() });
   }
 
+  deleteProduct(productId: string): Observable<void> {
+    return this.http.delete<void>(`/api/admin/products/${encodeURIComponent(productId)}`, {
+      headers: this.adminHeaders()
+    });
+  }
+
   previewTags(name: string, brand: string, category: string): Observable<LanguageTagSuggestions> {
     return this.http.post<LanguageTagSuggestions>(
       '/api/admin/products/preview-tags',

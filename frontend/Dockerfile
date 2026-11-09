@@ -7,5 +7,7 @@ RUN npm run build
 
 FROM nginx:1.27-alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY configure-nginx-dns.sh /docker-entrypoint.d/05-configure-nginx-dns.sh
+RUN chmod +x /docker-entrypoint.d/05-configure-nginx-dns.sh
 COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
 EXPOSE 80

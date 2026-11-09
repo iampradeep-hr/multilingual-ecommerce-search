@@ -23,7 +23,6 @@ export class App implements OnInit {
     { key: 'telugu', label: 'Telugu' },
     { key: 'kannada', label: 'Kannada' },
     { key: 'malayalam', label: 'Malayalam' },
-    { key: 'urdu', label: 'Urdu' },
     { key: 'typos', label: 'Typos' },
     { key: 'aiWords', label: 'AI words' }
   ] as const;
@@ -54,13 +53,14 @@ export class App implements OnInit {
   protected readonly adminProducts = signal<Product[]>([]);
   protected readonly adminLoading = signal(false);
   protected readonly adminSaving = signal(false);
+  protected readonly deletingProductId = signal<string | null>(null);
   protected readonly adminError = signal('');
   protected readonly adminNotice = signal('');
   protected readonly suggestedTags = signal<string[]>([]);
   protected readonly tagSuggestionMode = signal<'rules' | 'gemma'>('rules');
   protected readonly aiTagGenerating = signal(false);
   protected readonly aiTagMessage = signal('');
-  protected loginUsername = 'admin';
+  protected loginUsername = 'root';
   protected loginPassword = '';
   protected loginError = '';
   protected tagInputs: Record<string, string> = {};
@@ -105,21 +105,42 @@ export class App implements OnInit {
     });
   }
 
-  protected loadProducts(): void {
+  protected loadProducts(scrollToResults = false): void {
     this.loading.set(true);
     this.errorMessage.set('');
     this.commerceApi
       .search(this.query.trim(), this.selectedCategory(), this.sortOrder())
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (products) => this.products.set(products),
-        error: () => this.errorMessage.set('Please check that the Spring Boot API is running, then try again.')
+        next: (products) => {
+          this.products.set(products);
+          if (scrollToResults) {
+            this.scrollToProducts();
+          }
+        },
+        error: () => {
+          this.errorMessage.set('Please check that the Spring Boot API is running, then try again.');
+          if (scrollToResults) {
+            this.scrollToProducts();
+          }
+        }
       });
+  }
+
+  protected retryStoreLoad(): void {
+      this.loadCategories();
+      this.loadProducts();
   }
 
   protected search(): void {
     this.selectedCategory.set('All items');
-    this.loadProducts();
+    this.loadProducts(true);
+  }
+
+  protected searchFor(query: string): void {
+    this.query = query;
+    this.selectedCategory.set('All items');
+    this.loadProducts(true);
   }
 
   protected selectCategory(category: string): void {
@@ -241,6 +262,30 @@ export class App implements OnInit {
       });
   }
 
+  protected deleteProduct(product: Product): void {
+    if (!window.confirm(`Delete "${product.name}" from the catalog and search?`)) {
+      return;
+    }
+
+    this.deletingProductId.set(product.id);
+    this.adminError.set('');
+    this.adminNotice.set('');
+    this.commerceApi
+      .deleteProduct(product.id)
+      .pipe(finalize(() => this.deletingProductId.set(null)))
+      .subscribe({
+        next: () => {
+          this.adminProducts.update((products) => products.filter((item) => item.id !== product.id));
+          this.adminNotice.set(`${product.name} was removed from the catalog. Search index cleanup is processing.`);
+        },
+        error: (error: { status?: number }) => {
+          this.adminError.set(error.status === 404
+            ? `${product.name} was already removed. Refresh the catalog.`
+            : `Could not delete ${product.name}. Please try again.`);
+        }
+      });
+  }
+
   protected generateTagSuggestions(): void {
     this.adminError.set('');
     this.aiTagMessage.set('');
@@ -261,6 +306,7 @@ export class App implements OnInit {
     this.aiTagMessage.set('');
     this.suggestedTags.set([]);
     this.aiTagGenerating.set(true);
+    this.aiTagMessage.set('Gemma 3 is generating tags on CPU. The first request can take about two minutes.');
     this.tagSuggestionMode.set('gemma');
     this.commerceApi
       .generateTags(this.productDraft.name, this.productDraft.brand, this.productDraft.category)
@@ -272,8 +318,10 @@ export class App implements OnInit {
         },
         error: (error: { status?: number }) => {
           this.aiTagMessage.set(error.status === 503
-            ? 'Gemma is not configured. Start the Kaggle notebook and configure the backend connection.'
-            : 'Could not reach Gemma. Check that the Kaggle notebook is running and try again.');
+            ? 'Gemma is not configured. Check the Ollama service and backend settings.'
+            : error.status === 502
+              ? 'Ollama responded, but tag generation failed. Check the backend logs and try again.'
+              : 'The backend did not complete tag generation. Check the API connection and try again.');
         }
       });
   }
@@ -340,7 +388,7 @@ export class App implements OnInit {
       .subscribe({
         next: (product) => {
           this.adminProducts.update((products) => [product, ...products]);
-          this.adminNotice.set(`${product.name} is live in the storefront.`);
+          this.adminNotice.set(`${product.name} was accepted. Kafka workers are saving it and updating search; it should appear shortly.`);
           this.adminSection.set('products');
           this.productDraft = this.createProductDraft();
         },
