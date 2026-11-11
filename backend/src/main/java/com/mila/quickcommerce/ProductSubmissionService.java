@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 public interface ProductSubmissionService {
     Submission submit(ProductDraft draft);

@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +26,7 @@ public class KafkaProductSubmissionService implements ProductSubmissionService {
             KafkaTemplate<String, String> kafkaTemplate,
             ObjectMapper objectMapper,
             ProductIndexEventPublisher indexEventPublisher,
-            @Value("${jaldi.kafka.topics.ingest}") String ingestTopic) {
+            @Value("${mila.kafka.topics.ingest}") String ingestTopic) {
         this.catalog = catalog;
         this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = objectMapper;

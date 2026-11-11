@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,8 +26,8 @@ public class SecurityConfiguration {
 
     @Bean
     UserDetailsService adminUser(
-            @Value("${spring.security.user.name:admin}") String username,
-            @Value("${spring.security.user.password:jaldi123}") String password) {
+            @Value("${spring.security.user.name:root}") String username,
+            @Value("${spring.security.user.password:root}") String password) {
         return new InMemoryUserDetailsManager(
                 User.withUsername(username).password("{noop}" + password).roles("ADMIN").build());
     }

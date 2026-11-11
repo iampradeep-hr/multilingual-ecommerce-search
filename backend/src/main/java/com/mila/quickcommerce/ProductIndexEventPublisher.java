@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ public class ProductIndexEventPublisher {
     public ProductIndexEventPublisher(
             KafkaTemplate<String, String> kafkaTemplate,
             ObjectMapper objectMapper,
-            @Value("${jaldi.kafka.topics.index}") String indexTopic) {
+            @Value("${mila.kafka.topics.index}") String indexTopic) {
         this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = objectMapper;
         this.indexTopic = indexTopic;

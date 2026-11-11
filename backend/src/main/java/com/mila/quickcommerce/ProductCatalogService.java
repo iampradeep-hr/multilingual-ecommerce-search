@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import java.util.Comparator;
 import java.util.HashMap;

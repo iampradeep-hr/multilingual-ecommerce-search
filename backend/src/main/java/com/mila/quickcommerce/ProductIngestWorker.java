@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +22,7 @@ public class ProductIngestWorker {
         this.indexEventPublisher = indexEventPublisher;
     }
 
-    @KafkaListener(topics = "${jaldi.kafka.topics.ingest}", groupId = "jaldi-product-ingest")
+    @KafkaListener(topics = "${mila.kafka.topics.ingest}", groupId = "mila-product-ingest")
     public void ingest(String message) {
         Product product = deserialize(message);
         Product savedProduct = catalog.saveProduct(product);

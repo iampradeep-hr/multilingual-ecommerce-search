@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +22,7 @@ public class ProductIndexWorker {
         this.catalog = catalog;
     }
 
-    @KafkaListener(topics = "${jaldi.kafka.topics.index}", groupId = "jaldi-product-index")
+    @KafkaListener(topics = "${mila.kafka.topics.index}", groupId = "mila-product-index")
     public void index(String message) {
         if (message.startsWith("DELETE:")) {
             String productId = message.substring("DELETE:".length());

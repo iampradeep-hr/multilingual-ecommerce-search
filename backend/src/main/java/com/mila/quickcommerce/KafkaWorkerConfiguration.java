@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -74,12 +74,12 @@ public class KafkaWorkerConfiguration {
     }
 
     @Bean
-    NewTopic productIngestTopic(@Value("${jaldi.kafka.topics.ingest}") String topic) {
+    NewTopic productIngestTopic(@Value("${mila.kafka.topics.ingest}") String topic) {
         return TopicBuilder.name(topic).partitions(1).replicas(1).build();
     }
 
     @Bean
-    NewTopic productIndexTopic(@Value("${jaldi.kafka.topics.index}") String topic) {
+    NewTopic productIndexTopic(@Value("${mila.kafka.topics.index}") String topic) {
         return TopicBuilder.name(topic).partitions(1).replicas(1).build();
     }
 }

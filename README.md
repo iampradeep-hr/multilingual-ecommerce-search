@@ -2,6 +2,8 @@
 
 An Angular storefront backed by Spring Boot, MongoDB, Kafka, Typesense, and local Ollama/Gemma. The Compose stack runs the frontend, API, database, event broker, search engine, model server, and model download helper in containers.
 
+![Project architecture diagram](./diagram.png)
+
 ## Run the full stack with Podman
 
 Install Podman and a Compose provider on Ubuntu. The configured Compose provider is used by `podman compose`; run these commands from the project root:
@@ -11,7 +13,7 @@ cp .env.example .env
 podman compose up --build
 ```
 
-`.env.example` contains local-development values only. Before starting the stack, edit `.env` and set your own values for `MONGO_ROOT_USERNAME`, `MONGO_ROOT_PASSWORD`, `JALDI_ADMIN_USERNAME`, `JALDI_ADMIN_PASSWORD`, and `TYPESENSE_API_KEY`. For example, generate URL-safe passwords and a Typesense key with:
+`.env.example` contains local-development values only. Before starting the stack, edit `.env` and set your own values for `MONGO_ROOT_USERNAME`, `MONGO_ROOT_PASSWORD`, `MILA_ADMIN_USERNAME`, `MILA_ADMIN_PASSWORD`, and `TYPESENSE_API_KEY`. For example, generate URL-safe passwords and a Typesense key with:
 
 ```bash
 openssl rand -hex 24
@@ -27,10 +29,10 @@ The demo search recognizes Hinglish and Hindi product tags. For example, searchi
 
 ## Admin
 
-Open [http://localhost:4200/admin](http://localhost:4200/admin) and sign in with the admin credentials set by `JALDI_ADMIN_USERNAME` and `JALDI_ADMIN_PASSWORD` in `.env`. The unmodified example file uses:
+Open [http://localhost:4200/admin](http://localhost:4200/admin) and sign in with the admin credentials set by `MILA_ADMIN_USERNAME` and `MILA_ADMIN_PASSWORD` in `.env`. The unmodified example file uses:
 
-- Username: `admin`
-- Password: `jaldi123`
+- Username: `root`
+- Password: `root`
 
 The admin area includes an overview, product catalog, and a two-column add-product form. Add search tags by language (English, Hinglish, Hindi, Marathi, Bengali, Assamese, Gujarati, Punjabi, Odia, Tamil, Telugu, Kannada, Malayalam, typos, and AI words); press Enter to add each tag. On save, known rule-based translations are merged with the supplied tags, so a product whose name includes “milk” also gets common `doodh`/Hindi and regional-language aliases for search. “Quick tags (rules)” suggests tags and common translations for a few grocery terms. “Generate with AI” sends the product to Gemma 3 through the backend and local Ollama container, requesting tags in Marathi, Gujarati, Punjabi, Tamil, Telugu, Kannada, and Malayalam as well. Admin API endpoints use HTTP Basic authentication.
 
@@ -49,4 +51,4 @@ The admin area includes an overview, product catalog, and a two-column add-produ
 
 The demo PIN-code lookup recognizes `400001`, `560001`, `110001`, `600001`, and `700001`. Any other six-digit PIN code uses a generic neighbourhood store. Cart contents are kept in the browser; shopper login, checkout, payment processing, and database persistence are not enabled.
 
-The 38-product starter catalog is seeded idempotently into MongoDB at startup: missing starter entries are added without overwriting existing products. This project’s catalog is separate from the reference tag generator’s `product-kb.json`, which provides product-language aliases rather than a store inventory. Product aliases and Hindi/Hinglish terms are stored with each item and indexed for Typesense search. Products added by an admin persist in the `mongo-data` Docker volume; the model is persisted in `ollama-data`. Ollama is available to the backend at `http://ollama:11434` and to local tools at `http://localhost:11434`; the `ollama-models` helper exits successfully after pulling the model, while the Ollama server stays running. Cart contents remain in the browser. The service can also use a remote tag bridge by setting `GEMMA_PROVIDER=remote`, but the default Compose setup uses local Ollama. Admin credentials use HTTP Basic authentication; all values in `.env.example` are for local development only.
+The 38-product starter catalog is seeded idempotently into MongoDB at startup: missing starter entries are added without overwriting existing products. This project’s catalog is separate from the reference tag generator’s `product-kb.json`, which provides product-language aliases rather than a store inventory. Product aliases and Hindi/Hinglish terms are stored with each item and indexed for Typesense search. Products added by an admin persist in the `mongo-data` Docker volume; the model is persisted in `ollama-data`. Ollama is available to the backend at `http://ollama:11434` and to local tools at `http://localhost:11434`; the `ollama-models` helper exits successfully after pulling the model, while the Ollama server stays running. Cart contents remain in the browser. The service can also use a remote tag bridge by setting `GEMMA_PROVIDER=remote` and `MILA_TAG_SERVICE_TOKEN`, but the default Compose setup uses local Ollama. Admin credentials use HTTP Basic authentication; all values in `.env.example` are for local development only.

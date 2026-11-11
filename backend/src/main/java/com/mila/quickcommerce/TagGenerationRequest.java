@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

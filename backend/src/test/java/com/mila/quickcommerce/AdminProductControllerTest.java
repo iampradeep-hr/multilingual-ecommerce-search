@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -19,13 +19,13 @@ import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest(properties = {
         "spring.security.user.name=admin",
-        "spring.security.user.password=jaldi123",
-        "jaldi.gemma.provider=remote"
+        "spring.security.user.password=test-password",
+        "mila.gemma.provider=remote"
 })
 @AutoConfigureMockMvc
 class AdminProductControllerTest {
     private static final String ADMIN_AUTHORIZATION = "Basic " + Base64.getEncoder().encodeToString(
-            "admin:jaldi123".getBytes(StandardCharsets.UTF_8));
+            "admin:test-password".getBytes(StandardCharsets.UTF_8));
 
     @Autowired
     private MockMvc mockMvc;

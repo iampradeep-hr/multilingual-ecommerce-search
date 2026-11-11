@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
@@ -43,10 +43,10 @@ public class GemmaTagService {
     private final ObjectMapper objectMapper;
 
     public GemmaTagService(
-            @Value("${jaldi.gemma.provider:ollama}") String provider,
-            @Value("${jaldi.gemma.url:http://localhost:11434}") String serviceUrl,
-            @Value("${jaldi.gemma.token:}") String serviceToken,
-            @Value("${jaldi.gemma.model:gemma3:4b}") String model,
+            @Value("${mila.gemma.provider:ollama}") String provider,
+            @Value("${mila.gemma.url:http://localhost:11434}") String serviceUrl,
+            @Value("${mila.gemma.token:}") String serviceToken,
+            @Value("${mila.gemma.model:gemma3:4b}") String model,
             ObjectMapper objectMapper) {
         this.provider = provider;
         this.serviceUrl = serviceUrl.replaceAll("/+$", "");

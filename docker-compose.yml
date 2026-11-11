@@ -14,16 +14,16 @@ services:
       context: ./backend
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-jaldi}:${MONGO_ROOT_PASSWORD:-jaldi-local-dev}@mongodb:27017/jaldi?authSource=admin
+      SPRING_MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-mila}:${MONGO_ROOT_PASSWORD:-mila-local-dev}@mongodb:27017/mila?authSource=admin
       OLLAMA_URL: http://ollama:11434
       GEMMA_MODEL: ${GEMMA_MODEL:-gemma3:4b}
       TYPESENSE_ENABLED: "true"
       TYPESENSE_URL: http://typesense:8108
-      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-jaldi-local-typesense-key}
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-mila-local-typesense-key}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_TOPIC_PREFIX: ${KAFKA_TOPIC_PREFIX:-jaldi.}
-      JALDI_ADMIN_USERNAME: ${JALDI_ADMIN_USERNAME:-admin}
-      JALDI_ADMIN_PASSWORD: ${JALDI_ADMIN_PASSWORD:-jaldi123}
+      KAFKA_TOPIC_PREFIX: ${KAFKA_TOPIC_PREFIX:-mila.}
+      MILA_ADMIN_USERNAME: ${MILA_ADMIN_USERNAME:-root}
+      MILA_ADMIN_PASSWORD: ${MILA_ADMIN_PASSWORD:-root}
     ports:
       - "8080:8080"
     healthcheck:
@@ -48,8 +48,8 @@ services:
   mongodb:
     image: mongo:7.0
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-jaldi}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-jaldi-local-dev}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-mila}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-mila-local-dev}
     volumes:
       - mongo-data:/data/db
     healthcheck:
@@ -80,7 +80,7 @@ services:
       - "--data-dir"
       - "/data"
       - "--api-key"
-      - "${TYPESENSE_API_KEY:-jaldi-local-typesense-key}"
+      - "${TYPESENSE_API_KEY:-mila-local-typesense-key}"
       - "--enable-cors"
     volumes:
       - typesense-data:/data

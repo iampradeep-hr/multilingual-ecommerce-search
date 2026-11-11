@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
@@ -32,9 +32,9 @@ public class ProductSearchService {
     private final RestClient restClient;
 
     public ProductSearchService(
-            @Value("${jaldi.typesense.enabled:false}") boolean enabled,
-            @Value("${jaldi.typesense.url:http://localhost:8108}") String serviceUrl,
-            @Value("${jaldi.typesense.api-key:}") String apiKey,
+            @Value("${mila.typesense.enabled:false}") boolean enabled,
+            @Value("${mila.typesense.url:http://localhost:8108}") String serviceUrl,
+            @Value("${mila.typesense.api-key:}") String apiKey,
             ProductCatalogStore store) {
         this.enabled = enabled;
         this.store = store;

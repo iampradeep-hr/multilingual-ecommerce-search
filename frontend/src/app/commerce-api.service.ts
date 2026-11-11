@@ -52,7 +52,7 @@ export type LanguageTagSuggestions = Record<string, string[]>;
 
 @Injectable({ providedIn: 'root' })
 export class CommerceApiService {
-  private readonly adminCredentialKey = 'jaldi-admin-credentials';
+  private readonly adminCredentialKey = 'mila-admin-credentials';
 
   constructor(private readonly http: HttpClient) {}
 

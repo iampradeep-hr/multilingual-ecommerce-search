@@ -1,4 +1,4 @@
-package com.jaldi.quickcommerce;
+package com.mila.quickcommerce;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
