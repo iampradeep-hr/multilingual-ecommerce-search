@@ -1,4 +1,4 @@
-# Mila? — Multilingual E-commerce Search
+# Mila? — AI based Multilingual E-commerce Search
 
 An Angular storefront backed by Spring Boot, MongoDB, Kafka, Typesense, and local Ollama/Gemma. The Compose stack runs the frontend, API, database, event broker, search engine, model server, and model download helper in containers.
 
