@@ -2,6 +2,10 @@
 
 An Angular storefront backed by Spring Boot, MongoDB, Kafka, Typesense, and local Ollama/Gemma. The Compose stack runs the frontend, API, database, event broker, search engine, model server, and model download helper in containers.
 
+## Demo
+
+[Watch the project demo on YouTube](https://youtu.be/2DzbObNtKyM).
+
 ![Project architecture diagram](./diagram.png)
 
 ## Run the full stack with Podman
